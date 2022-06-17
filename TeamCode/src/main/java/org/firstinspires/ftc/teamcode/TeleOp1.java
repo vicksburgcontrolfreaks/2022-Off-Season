@@ -24,33 +24,17 @@ public class TeleOp1 extends LinearOpMode {
     private boolean calibration_complete = false;
 
    private DigitalChannel clawSwitch;
-   private DigitalChannel armSwitch;
-   private DigitalChannel red;
-   private DigitalChannel green;
-   private ElapsedTime runtime = new ElapsedTime();
-   private DcMotor left_front = null;
-   private DcMotor right_front = null;
-   private DcMotor right_rear = null;
-   private DcMotor left_rear = null;
-   private DcMotor arm_lifter = null;
+    private final ElapsedTime runtime = new ElapsedTime();
+    private DcMotor arm_lifter = null;
    private DcMotor right_duck = null;
    private DcMotor left_duck = null;
    private Servo LeftG = null; 
    private Servo RightG = null;
    private double powerCmd;
    private float arm_gain;
-   private int armTgt;
-   private double armPwrCmd;
+    private double armPwrCmd;
    private double maxArmPwr;
    private double minArmPwr;
-   private double left_front_power;
-   private double right_front_power;
-   private double left_rear_power;
-   private double right_rear_power;
-   private double arm_stick_gain;
-   private double DriveGain;
-
-   float pi = (float) 3.1415926;
 
     @Override
     public void runOpMode() {
@@ -85,10 +69,10 @@ public class TeleOp1 extends LinearOpMode {
 //        yawPIDController.setPID(YAW_PID_P, YAW_PID_I, YAW_PID_D);
 //        yawPIDController.enable(true);
 
-        left_front  = hardwareMap.get(DcMotor.class, "left_front");
-        right_front = hardwareMap.get(DcMotor.class, "right_front");
-        left_rear   = hardwareMap.get(DcMotor.class, "left_rear");
-        right_rear  = hardwareMap.get(DcMotor.class, "right_rear");
+        DcMotor left_front = hardwareMap.get(DcMotor.class, "left_front");
+        DcMotor right_front = hardwareMap.get(DcMotor.class, "right_front");
+        DcMotor left_rear = hardwareMap.get(DcMotor.class, "left_rear");
+        DcMotor right_rear = hardwareMap.get(DcMotor.class, "right_rear");
         right_duck = hardwareMap.get(DcMotor.class, "right_duck");
         left_duck = hardwareMap.get(DcMotor.class, "left_duck");
         arm_lifter  = hardwareMap.get(DcMotor.class, "arm_lifter");
@@ -96,21 +80,21 @@ public class TeleOp1 extends LinearOpMode {
         RightG = hardwareMap.get(Servo.class, "RightG");
         clawSwitch = hardwareMap.get(DigitalChannel.class, "clawSwitch");
         clawSwitch.setMode(DigitalChannel.Mode.INPUT);
-        armSwitch = hardwareMap.get(DigitalChannel.class, "armSwitch");
+        DigitalChannel armSwitch = hardwareMap.get(DigitalChannel.class, "armSwitch");
         armSwitch.setMode(DigitalChannel.Mode.INPUT);
-        red = hardwareMap.get(DigitalChannel.class, "red");
-        green = hardwareMap.get(DigitalChannel.class, "green");
+        DigitalChannel red = hardwareMap.get(DigitalChannel.class, "red");
+        DigitalChannel green = hardwareMap.get(DigitalChannel.class, "green");
 
         
    //  waitForStart();
-    
-        armTgt = 0;
+
+        int armTgt = 0;
         powerCmd = 0.0;
         arm_gain = (float)(0.002);
         armPwrCmd = 0.0;
         maxArmPwr = 0.9;
         minArmPwr = -0.25;
-        arm_stick_gain = 4.0;
+        double arm_stick_gain = 4.0;
 
         while ( !calibration_complete ) {
             /* navX-Micro Calibration completes automatically ~15 seconds after it is
@@ -170,7 +154,7 @@ public class TeleOp1 extends LinearOpMode {
             /* Adjust Joystick X/Y inputs by navX MXP yaw angle */
 
             float gyro_degrees = (navx_device.getCompassHeading());
-            float gyro_radians = (gyro_degrees * pi/180);
+            float gyro_radians = (float) (gyro_degrees * Math.PI/180);
             float temp = (float) (forward * Math.cos(gyro_radians) +
                                 strafe * Math.sin(gyro_radians));
             strafe = -forward * Math.sin(gyro_radians) +
@@ -184,11 +168,11 @@ public class TeleOp1 extends LinearOpMode {
             telemetry.addData("Encoder Left", left_rear.getCurrentPosition());
             telemetry.addData("Encoder Right", right_rear.getCurrentPosition());
             telemetry.update();
-   
-            left_front_power   = Range.clip(forward + rcw + strafe, -1.0, 1.0);
-            right_front_power  = Range.clip(forward - rcw - strafe, -1.0, 1.0);
-            left_rear_power = Range.clip(forward - rcw + strafe, -1.0, 1.0);
-            right_rear_power = Range.clip (forward + rcw - strafe, -1.0, 1.0);
+
+            double left_front_power = Range.clip(forward + rcw + strafe, -1.0, 1.0);
+            double right_front_power = Range.clip(forward - rcw - strafe, -1.0, 1.0);
+            double left_rear_power = Range.clip(forward - rcw + strafe, -1.0, 1.0);
+            double right_rear_power = Range.clip(forward + rcw - strafe, -1.0, 1.0);
             
           if (!clawSwitch.getState()){
               
@@ -265,18 +249,19 @@ public class TeleOp1 extends LinearOpMode {
                sleep(100);
                arm_lifter.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             }
-        if ((gamepad1.right_trigger>0.5)){
-          DriveGain = 0.9;
+            double driveGain;
+            if ((gamepad1.right_trigger>0.5)){
+          driveGain = 0.9;
         }
         else {
-             DriveGain = 0.75;
+             driveGain = 0.75;
         }
             // Send calculated power to wheels
             // raw 0-1 was difficult to drive, 0.75 as a gain worked
-            left_front.setPower(left_front_power*DriveGain);
-            right_front.setPower(right_front_power*DriveGain);
-            left_rear.setPower(left_rear_power*DriveGain);
-            right_rear.setPower(right_rear_power*DriveGain);
+            left_front.setPower(left_front_power * driveGain);
+            right_front.setPower(right_front_power * driveGain);
+            left_rear.setPower(left_rear_power * driveGain);
+            right_rear.setPower(right_rear_power * driveGain);
 
         
             // Show the elapsed game time and wheel power.

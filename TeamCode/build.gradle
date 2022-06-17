@@ -15,7 +15,28 @@
 apply from: '../build.common.gradle'
 apply from: '../build.dependencies.gradle'
 
+android {
+
+    androidResources {
+        noCompress 'tflite'
+    }
+    packagingOptions {
+        jniLibs {
+            pickFirsts += ['**/*.so']
+        }
+    }
+}
+
+repositories {
+
+    flatDir {
+//        dirs 'libs', 'C:\\Users\\matt\\Documents\\Android Studio\\navx-micro\\android\\libs'
+        dirs 'libs', 'C:\\Users\\matt\\Documents\\Android Studio\\Ultimate Goal\\libs'
+    }
+}
+
 dependencies {
     implementation project(':FtcRobotController')
     annotationProcessor files('lib/OpModeAnnotationProcessor.jar')
+    implementation (name:'navx_ftc-release', ext:'aar')
 }
