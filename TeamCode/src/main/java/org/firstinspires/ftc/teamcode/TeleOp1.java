@@ -24,15 +24,15 @@ public class TeleOp1 extends LinearOpMode {
     private boolean calibration_complete = false;
 
    private DigitalChannel clawSwitch;
-    private final ElapsedTime runtime = new ElapsedTime();
-    private DcMotor arm_lifter = null;
+   private final ElapsedTime runtime = new ElapsedTime();
+   private DcMotor arm_lifter = null;
    private DcMotor right_duck = null;
    private DcMotor left_duck = null;
    private Servo LeftG = null; 
    private Servo RightG = null;
    private double powerCmd;
    private float arm_gain;
-    private double armPwrCmd;
+   private double armPwrCmd;
    private double maxArmPwr;
    private double minArmPwr;
 
